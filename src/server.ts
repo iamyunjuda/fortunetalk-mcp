@@ -25,7 +25,7 @@ function createMcpServer(): McpServer {
   // 도구 1: 오늘의 타로 운세 (격언, 책, 노래 추천 포함)
   server.tool(
     "daily_fortune",
-    "오늘의 타로 카드를 뽑고 운세, 격언, 책 추천, 노래 추천을 받습니다",
+    "오늘의 운세를 봅니다. 타로 카드 한 장과 함께 오늘의 격언, 책 추천, 노래 추천을 받습니다. 오늘 럭키비키할지 궁금할 때 사용하세요!",
     {},
     async () => {
       const card = drawDailyCard();
@@ -59,14 +59,14 @@ function createMcpServer(): McpServer {
 
   // 도구 3: 질문에 대한 타로 리딩
   server.tool(
-    "question_tarot",
-    "특정 질문에 대해 타로 카드를 뽑아 답을 얻습니다 (격언, 책, 노래 추천 포함)",
+    "ask_tarot",
+    "고민이나 질문에 대해 타로 카드로 답을 얻습니다. 예: 이직해도 될까?, 연애운은?, 시험 붙을까? 등 인생의 모든 질문에 타로가 답해드립니다.",
     {
-      question: z.string().describe("질문 내용"),
-      card_count: z.number().min(1).max(5).default(1).describe("뽑을 카드 수 (1-5)")
+      question: z.string().describe("사용자의 고민이나 질문 (예: 이직해도 될까?, 연애운 어때?, 올해 재물운은?)"),
+      card_count: z.number().min(1).max(5).default(1).optional().describe("뽑을 카드 수 (기본 1장)")
     },
     async ({ question, card_count }) => {
-      const cards = drawCards(card_count);
+      const cards = drawCards(card_count ?? 1);
       const cardResults = cards.map(c => formatCardResult(c)).join("\n\n");
       const firstCard = cards[0];
       const rec = getRecommendation(firstCard.card.name, firstCard.isReversed);
