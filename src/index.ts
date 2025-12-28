@@ -15,8 +15,9 @@ import { getRecommendation, formatRecommendation } from "./recommendations.js";
 
 // MCP 서버 생성
 const server = new McpServer({
-  name: "fortunetalk",
-  version: "1.0.0"
+  name: "lucky-vicky",
+  version: "1.0.0",
+  description: "오늘 럭키비키할지 타로로 알려드림! 운세, 격언, 행운의 색깔까지"
 });
 
 // 도구 1: 오늘의 타로 운세 (격언, 책, 노래 추천 포함)
@@ -130,10 +131,10 @@ server.tool(
   }
 );
 
-// 도구 5: 오늘의 책 추천
+// 도구 5: 오늘의 행운의 색깔
 server.tool(
-  "daily_book",
-  "랜덤 타로 카드 기반 오늘의 책을 추천받습니다",
+  "lucky_color",
+  "오늘의 행운의 색깔을 알려드립니다",
   {},
   async () => {
     const card = drawDailyCard();
@@ -146,31 +147,7 @@ server.tool(
     }
 
     const direction = card.isReversed ? "역방향" : "정방향";
-    const text = `🃏 ${card.card.nameKo} (${direction})\n\n📚 『${rec.book.title}』 ${rec.book.author}`;
-
-    return {
-      content: [{ type: "text" as const, text }]
-    };
-  }
-);
-
-// 도구 6: 오늘의 노래 추천
-server.tool(
-  "daily_song",
-  "랜덤 타로 카드 기반 오늘의 노래를 추천받습니다",
-  {},
-  async () => {
-    const card = drawDailyCard();
-    const rec = getRecommendation(card.card.name, card.isReversed);
-
-    if (!rec) {
-      return {
-        content: [{ type: "text" as const, text: "추천을 가져올 수 없습니다." }]
-      };
-    }
-
-    const direction = card.isReversed ? "역방향" : "정방향";
-    const text = `🃏 ${card.card.nameKo} (${direction})\n\n🎵 "${rec.song.title}" ${rec.song.artist}`;
+    const text = `🃏 ${card.card.nameKo} (${direction})\n\n🎨 행운의 색: ${rec.color.name}\n💫 ${rec.color.meaning}`;
 
     return {
       content: [{ type: "text" as const, text }]
@@ -226,25 +203,20 @@ server.tool(
     const uprightRec = getRecommendation(card.name, false);
     const reversedRec = getRecommendation(card.name, true);
 
-    let text = `🃏 ${card.nameKo} (${card.name})\n`;
-    text += "═".repeat(30) + "\n\n";
+    let text = `🃏 ${card.nameKo} (${card.name})\n\n`;
 
     text += "【정방향】\n";
-    text += `💫 의미: ${card.meaning.upright}\n`;
-    text += `🔮 키워드: ${card.keywords.upright.join(", ")}\n`;
+    text += `→ ${card.meaning.upright}\n`;
     if (uprightRec) {
-      text += `📜 격언: "${uprightRec.quote.text}" - ${uprightRec.quote.author}\n`;
-      text += `📚 책: 『${uprightRec.book.title}』 - ${uprightRec.book.author}\n`;
-      text += `🎵 노래: "${uprightRec.song.title}" - ${uprightRec.song.artist}\n`;
+      text += `📜 "${uprightRec.quote.text}" - ${uprightRec.quote.author}\n`;
+      text += `🎨 행운의 색: ${uprightRec.color.name}\n`;
     }
 
     text += "\n【역방향】\n";
-    text += `💫 의미: ${card.meaning.reversed}\n`;
-    text += `🔮 키워드: ${card.keywords.reversed.join(", ")}\n`;
+    text += `→ ${card.meaning.reversed}\n`;
     if (reversedRec) {
-      text += `📜 격언: "${reversedRec.quote.text}" - ${reversedRec.quote.author}\n`;
-      text += `📚 책: 『${reversedRec.book.title}』 - ${reversedRec.book.author}\n`;
-      text += `🎵 노래: "${reversedRec.song.title}" - ${reversedRec.song.artist}\n`;
+      text += `📜 "${reversedRec.quote.text}" - ${reversedRec.quote.author}\n`;
+      text += `🎨 행운의 색: ${reversedRec.color.name}`;
     }
 
     return {
