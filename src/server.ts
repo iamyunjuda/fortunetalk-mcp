@@ -194,56 +194,27 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 세션별 transport 저장
-const transports = new Map<string, StreamableHTTPServerTransport>();
-
 // Health check
 app.get("/health", (_req: Request, res: Response) => {
-  res.json({ status: "ok", server: "fortunetalk", version: "1.0.0" });
+  res.json({ status: "ok", server: "lucky-vicky", version: "1.0.0" });
 });
 
-// MCP endpoint
+// MCP endpoint - stateless 방식
 app.post("/mcp", async (req: Request, res: Response) => {
   try {
-    const sessionId = req.headers["x-session-id"] as string || "default";
+    // 매 요청마다 새 transport 생성 (stateless)
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: undefined,
+    });
 
-    let transport = transports.get(sessionId);
-
-    if (!transport) {
-      transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: () => sessionId,
-      });
-
-      const mcpServer = createMcpServer();
-      await mcpServer.connect(transport);
-
-      transports.set(sessionId, transport);
-    }
+    const mcpServer = createMcpServer();
+    await mcpServer.connect(transport);
 
     await transport.handleRequest(req, res, req.body);
   } catch (error) {
     console.error("MCP error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-});
-
-// SSE endpoint (선택사항)
-app.get("/mcp/sse", async (req: Request, res: Response) => {
-  const sessionId = req.headers["x-session-id"] as string || "default";
-
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-
-  const transport = transports.get(sessionId);
-  if (transport) {
-    // SSE 연결 처리
-    res.write(`data: ${JSON.stringify({ type: "connected", sessionId })}\n\n`);
-  }
-
-  req.on("close", () => {
-    transports.delete(sessionId);
-  });
 });
 
 // 서버 시작
