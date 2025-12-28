@@ -146,11 +146,7 @@ server.tool(
     }
 
     const direction = card.isReversed ? "역방향" : "정방향";
-    const text = `🃏 오늘의 카드: ${card.card.nameKo} (${direction})\n\n` +
-      `📚 오늘의 추천 책\n` +
-      `『${rec.book.title}』\n` +
-      `저자: ${rec.book.author}\n` +
-      `💡 추천 이유: ${rec.book.reason}`;
+    const text = `🃏 ${card.card.nameKo} (${direction})\n\n📚 『${rec.book.title}』 ${rec.book.author}`;
 
     return {
       content: [{ type: "text" as const, text }]
@@ -174,11 +170,7 @@ server.tool(
     }
 
     const direction = card.isReversed ? "역방향" : "정방향";
-    const text = `🃏 오늘의 카드: ${card.card.nameKo} (${direction})\n\n` +
-      `🎵 오늘의 추천 노래\n` +
-      `"${rec.song.title}"\n` +
-      `아티스트: ${rec.song.artist}\n` +
-      `💡 추천 이유: ${rec.song.reason}`;
+    const text = `🃏 ${card.card.nameKo} (${direction})\n\n🎵 "${rec.song.title}" ${rec.song.artist}`;
 
     return {
       content: [{ type: "text" as const, text }]

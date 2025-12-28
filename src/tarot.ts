@@ -319,39 +319,27 @@ export function formatCardResult(drawnCard: DrawnCard): string {
   const { card, isReversed, position } = drawnCard;
   const direction = isReversed ? "역방향" : "정방향";
   const meaning = isReversed ? card.meaning.reversed : card.meaning.upright;
-  const keywords = isReversed ? card.keywords.reversed : card.keywords.upright;
 
   let result = "";
   if (position) {
-    result += `【${position}】\n`;
+    result += `[${position}] `;
   }
-  result += `🃏 ${card.nameKo} (${card.name}) - ${direction}\n`;
-  result += `💫 의미: ${meaning}\n`;
-  result += `🔮 키워드: ${keywords.join(", ")}`;
+  result += `${card.nameKo} (${direction})\n`;
+  result += `→ ${meaning}`;
 
   return result;
 }
 
 // 전체 리딩 결과 포맷팅
 export function formatReading(cards: DrawnCard[], type: string): string {
-  const today = new Date().toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "long"
-  });
-
-  let result = `✨ ${today} ${type} ✨\n`;
-  result += "═".repeat(30) + "\n\n";
+  let result = `🔮 ${type}\n\n`;
 
   cards.forEach((drawnCard, index) => {
     result += formatCardResult(drawnCard);
     if (index < cards.length - 1) {
-      result += "\n\n" + "─".repeat(25) + "\n\n";
+      result += "\n\n";
     }
   });
-
-  result += "\n\n" + "═".repeat(30);
 
   return result;
 }
